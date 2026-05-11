@@ -5,6 +5,7 @@ Purpose-built pull request review UI (see `PRD.md` and `ARCHITECTURE.md`).
 ## Setup
 
 1. Copy `.env.example` to `.env.local` and fill in values.
+   - The GitHub OAuth app requests **`read:org`** so we can list your org teams and surface **team review requests** (`team-review-requested:`). After changing scopes, **sign out and sign in again** so GitHub re-authorizes.
 2. `pnpm install`
 3. `pnpm db:push` (or run migrations) against your Postgres database.
 4. `pnpm dev` (or `pnpm dev:lan` if you open the app from another device on your network — see below)
@@ -35,6 +36,10 @@ GitHub checks the **authorization callback URL** exactly. If you visit the app a
 4. Restart `pnpm dev` / `pnpm dev:lan` after changing env vars.
 
 If you switch between **localhost** and **LAN IP**, keep **both** callback URLs in GitHub and align `NEXTAUTH_URL` with whichever URL you are using for that session.
+
+### Logged-out users could open `/dashboard`
+
+Next.js middleware patterns like `/dashboard/:path*` **do not match** `/dashboard` itself. The matcher must include **`/dashboard`** explicitly so unauthenticated visitors are redirected to `/login`.
 
 ### Dashboard: “Sign in to load pull requests” while already signed in
 

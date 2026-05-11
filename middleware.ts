@@ -12,5 +12,12 @@ export default auth((req) => {
 });
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/settings', '/settings/:path*', '/:org/:repo/pull/:id'],
+  // Note: `/dashboard/:path*` does NOT match `/dashboard` exactly — list `/dashboard` on its own.
+  matcher: [
+    '/dashboard',
+    '/dashboard/:path*',
+    '/settings',
+    '/settings/:path*',
+    '/:org/:repo/pull/:id',
+  ],
 };

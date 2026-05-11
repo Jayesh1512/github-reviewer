@@ -7,7 +7,12 @@ export const authConfig = {
     GitHub({
       clientId: env.GITHUB_CLIENT_ID,
       clientSecret: env.GITHUB_CLIENT_SECRET,
-      authorization: { params: { scope: 'read:user user:email repo' } },
+      authorization: {
+        params: {
+          // read:org — list org teams so we can find team-review-requested PRs
+          scope: 'read:user user:email repo read:org',
+        },
+      },
     }),
   ],
   pages: {
