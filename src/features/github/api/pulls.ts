@@ -64,6 +64,47 @@ function mapStatus(s: string): PRFile['status'] {
   return 'modified';
 }
 
+/** GitHub search issue items often omit `repository`; `repository_url` is reliable. */
+export function issueRepoFullName(item: {
+  repository?: { full_name?: string } | null;
+  repository_url?: string;
+}): string | null {
+  const fromNested = item.repository?.full_name;
+  if (fromNested) return fromNested;
+  const url = item.repository_url;
+  if (!url) return null;
+  const m = url.match(/\/repos\/([^/]+)\/([^/]+)(?:$|\?)/);
+  return m ? `${m[1]}/${m[2]}` : null;
+}
+
+/** Open PRs from GitHub search (paginated; search max 100 per page, 1000 results cap). */
+export type DashboardSearchIssue = {
+  id: number;
+  number: number;
+  title: string;
+  html_url: string;
+  repository_url?: string;
+  repository?: { full_name?: string } | null;
+};
+
+async function searchIssuesAllPages(
+  octokit: ReturnType<typeof createGitHubClient>,
+  q: string,
+  maxPages = 10,
+): Promise<DashboardSearchIssue[]> {
+  const out: DashboardSearchIssue[] = [];
+  for (let page = 1; page <= maxPages; page += 1) {
+    const { data } = await octokit.search.issuesAndPullRequests({
+      q,
+      per_page: 100,
+      page,
+    });
+    out.push(...(data.items as DashboardSearchIssue[]));
+    if (data.items.length < 100) break;
+  }
+  return out;
+}
+
 /** PRs for dashboard: open PRs where user is requested reviewer or author. */
 export async function listDashboardPRs(accessToken: string) {
   const octokit = createGitHubClient(accessToken);
@@ -71,18 +112,9 @@ export async function listDashboardPRs(accessToken: string) {
   const login = me.login;
 
   const [reviewRequested, authored] = await Promise.all([
-    octokit.search.issuesAndPullRequests({
-      q: `is:open is:pr review-requested:${login}`,
-      per_page: 30,
-    }),
-    octokit.search.issuesAndPullRequests({
-      q: `is:open is:pr author:${login}`,
-      per_page: 30,
-    }),
+    searchIssuesAllPages(octokit, `is:open is:pr review-requested:${login}`),
+    searchIssuesAllPages(octokit, `is:open is:pr author:${login}`),
   ]);
 
-  return {
-    reviewRequested: reviewRequested.data.items,
-    authored: authored.data.items,
-  };
+  return { reviewRequested, authored };
 }
