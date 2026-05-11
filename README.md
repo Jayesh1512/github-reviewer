@@ -36,6 +36,10 @@ GitHub checks the **authorization callback URL** exactly. If you visit the app a
 
 If you switch between **localhost** and **LAN IP**, keep **both** callback URLs in GitHub and align `NEXTAUTH_URL` with whichever URL you are using for that session.
 
+### Dashboard: “Sign in to load pull requests” while already signed in
+
+On **HTTPS** (e.g. Vercel), the session cookie name is `__Secure-authjs.session-token`. Server-side `getToken()` must use the matching **secure cookie** mode, or it cannot read the JWT and the GitHub token is missing. This is fixed in `getGitHubAccessTokenFromCookies()`; redeploy after pulling the latest code.
+
 For a quick compile without real secrets (e.g. CI):
 
 ```bash
