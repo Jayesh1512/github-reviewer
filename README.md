@@ -5,6 +5,7 @@ Purpose-built pull request review UI (see `PRD.md` and `ARCHITECTURE.md`).
 ## Setup
 
 1. Copy `.env.example` to `.env.local` and fill in values.
+   - The GitHub OAuth app requests **`read:org`** so we can list your org teams and surface **team review requests** (`team-review-requested:`). After changing scopes, **sign out and sign in again** so GitHub re-authorizes.
 2. `pnpm install`
 3. `pnpm db:push` (or run migrations) against your Postgres database.
 4. `pnpm dev` (or `pnpm dev:lan` if you open the app from another device on your network — see below)

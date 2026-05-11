@@ -40,19 +40,24 @@ export default async function DashboardPage() {
     );
   }
 
-  const { reviewRequested, authored } = await listDashboardPRs(token);
+  const { needsReview, authored } = await listDashboardPRs(token);
 
   return (
     <ContentArea>
       <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
       <p className="mt-1 text-sm text-muted-foreground">
-        Open pull requests where you are a reviewer or the author.
+        Open pull requests you authored, or that need your review (requested reviewer, assignee, or
+        team review).
       </p>
 
       <section className="mt-8">
-        <h2 className="text-sm font-medium text-muted-foreground">Review requested</h2>
+        <h2 className="text-sm font-medium text-muted-foreground">Needs your review</h2>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Includes explicit review requests, PRs assigned to you, and team review requests when
+          GitHub has <code className="rounded bg-muted px-1">read:org</code> scope.
+        </p>
         <ul className="mt-3 space-y-2">
-          {reviewRequested.map((item) => {
+          {needsReview.map((item) => {
             const href = prHref(item);
             return (
               <li key={item.id}>
@@ -69,7 +74,7 @@ export default async function DashboardPage() {
               </li>
             );
           })}
-          {reviewRequested.length === 0 ? (
+          {needsReview.length === 0 ? (
             <li className="text-sm text-muted-foreground">None— you are all caught up.</li>
           ) : null}
         </ul>
