@@ -1,0 +1,34 @@
+# deps
+node_modules
+.pnp
+.pnp.js
+
+# build
+.next
+out
+dist
+build
+
+# env
+.env
+.env*.local
+
+# debug
+npm-debug.log*
+pnpm-debug.log*
+
+# IDE
+.idea
+.vscode/*
+!.vscode/extensions.json
+
+# OS
+.DS_Store
+
+# testing
+coverage
+.vercel
+
+# misc
+*.tsbuildinfo
+next-env.d.ts
